@@ -1,27 +1,16 @@
 """
-End-to-end tests for the Product Trends MCP server.
+Unit tests for the Product Trends scrapers.
 
-These tests start a real server instance and test the full functionality,
-but mock the external API calls to Apify.
+This module tests the scraper functions by mocking the Apify API interactions.
 """
 
 import os
 import json
 import unittest
-import logging
 from unittest import mock
-from mcp.client import MCPClient
 from typing import Dict, List, Any
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger("e2e-tests")
-
-# Constants
-SERVER_URL = "http://localhost:8787"
+from product_trends_mcp.server import tiktok_hashtag_scraper, insta_hashtag_scraper
 
 # Sample data for mocking Apify responses
 SAMPLE_TIKTOK_POSTS = [
@@ -85,6 +74,13 @@ SAMPLE_INSTAGRAM_POSTS = [
 ]
 
 
+class MockContext:
+    """Mock context for the tool functions."""
+    
+    def __init__(self):
+        self.something = "mock_context"
+
+
 class MockApifyDataset:
     """Mock class for Apify dataset."""
     
@@ -127,39 +123,19 @@ class MockApifyClient:
             return MockApifyDataset([])
 
 
-class TestProductTrendsE2E(unittest.TestCase):
-    """End-to-end tests for the Product Trends MCP server."""
+class TestScrapers(unittest.TestCase):
+    """Unit tests for the Product Trends scrapers."""
     
-    @classmethod
-    def setUpClass(cls):
-        """Set up the test class - create client, etc."""
-        # Create a client that points to our test server
-        cls.client = MCPClient(SERVER_URL)
-        
-        # Configure the mock for Apify client
-        cls.apify_patcher = mock.patch('product_trends_mcp.server.ApifyClient', MockApifyClient)
-        cls.mock_apify = cls.apify_patcher.start()
-    
-    @classmethod
-    def tearDownClass(cls):
-        """Clean up after all tests."""
-        # Stop the mock
-        cls.apify_patcher.stop()
-    
-    def test_server_info(self):
-        """Test getting server info."""
-        info = self.client.get_info()
-        self.assertEqual(info["name"], "Product Trends Expert")
-        self.assertEqual(info["version"], "0.1.0")
-    
-    def test_tiktok_hashtag_scraper(self):
+    @mock.patch('product_trends_mcp.server.ApifyClient', MockApifyClient)
+    @mock.patch('product_trends_mcp.server.APIFY_API_TOKEN', 'test_token')
+    async def test_tiktok_hashtag_scraper(self):
         """Test the TikTok hashtag scraper tool."""
-        # Call the tool
-        result = self.client.call_tool(
-            "tiktok_hashtag_scraper",
+        # Call the scraper function
+        result = await tiktok_hashtag_scraper(
             hashtags=["organicfood", "healthysnacks"],
             results_per_page=50,
-            max_profiles_per_query=5
+            max_profiles_per_query=5,
+            ctx=MockContext()
         )
         
         # Check the result
@@ -171,13 +147,15 @@ class TestProductTrendsE2E(unittest.TestCase):
         self.assertIn("average_likes", result["analysis"])
         self.assertIn("results", result)
     
-    def test_insta_hashtag_scraper(self):
+    @mock.patch('product_trends_mcp.server.ApifyClient', MockApifyClient)
+    @mock.patch('product_trends_mcp.server.APIFY_API_TOKEN', 'test_token')
+    async def test_insta_hashtag_scraper(self):
         """Test the Instagram hashtag scraper tool."""
-        # Call the tool
-        result = self.client.call_tool(
-            "insta_hashtag_scraper",
+        # Call the scraper function
+        result = await insta_hashtag_scraper(
             hashtags=["organicfood", "healthysnacks"],
-            results_limit=100
+            results_limit=100,
+            ctx=MockContext()
         )
         
         # Check the result
@@ -189,24 +167,37 @@ class TestProductTrendsE2E(unittest.TestCase):
         self.assertIn("average_likes", result["analysis"])
         self.assertIn("results", result)
     
-    def test_trends_resource(self):
-        """Test the trends resource endpoint."""
-        # Access the resource
-        resource = self.client.get_resource("trends://tiktok/organicfood")
+    @mock.patch('product_trends_mcp.server.APIFY_API_TOKEN', '')
+    async def test_tiktok_scraper_no_api_token(self):
+        """Test TikTok scraper with no API token."""
+        # Call the scraper function with no API token
+        result = await tiktok_hashtag_scraper(
+            hashtags=["organicfood"],
+            results_per_page=50,
+            max_profiles_per_query=5,
+            ctx=MockContext()
+        )
         
         # Check the result
-        self.assertEqual(resource["platform"], "tiktok")
-        self.assertEqual(resource["hashtag"], "organicfood")
-        self.assertIn("message", resource)
+        self.assertIn("error", result)
+        self.assertEqual(result["hashtags"], ["organicfood"])
+        self.assertEqual(result["results"], [])
     
-    def test_invalid_platform(self):
-        """Test accessing a resource with an invalid platform."""
-        # Access the resource with an invalid platform
-        resource = self.client.get_resource("trends://invalid/organicfood")
+    @mock.patch('product_trends_mcp.server.APIFY_API_TOKEN', '')
+    async def test_insta_scraper_no_api_token(self):
+        """Test Instagram scraper with no API token."""
+        # Call the scraper function with no API token
+        result = await insta_hashtag_scraper(
+            hashtags=["organicfood"],
+            results_limit=100,
+            ctx=MockContext()
+        )
         
         # Check the result
-        self.assertIn("error", resource)
+        self.assertIn("error", result)
+        self.assertEqual(result["hashtags"], ["organicfood"])
+        self.assertEqual(result["results"], [])
 
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main() 

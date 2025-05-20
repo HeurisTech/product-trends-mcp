@@ -1,0 +1,19 @@
+{
+    "mcpServers": {
+      "product-trends-mcp": {
+        "command": "/opt/homebrew/bin/uv",
+        "description": "Search for trends on tiktok and instagram (uses apify)",
+        "args": [
+          "--directory",
+          "/Users/user/Desktop/fl100/contract-sourcing/mcp-servers/trends-inspiration/src/product_trends_mcp",
+          "run",
+          "--with",
+          "fastmcp",
+          "server.py"
+        ],
+        "env": {
+           "APIFY_API_KEY": "apify_api_vKJsIYqyUCGPeOpOWetaMc57PoyZzX2uYdQq"
+         }
+      }
+    }
+  }

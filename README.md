@@ -27,47 +27,53 @@ A production-ready MCP server providing tools to analyze product trends on socia
 2. Create and activate a virtual environment:
 
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   uv init
+   uv venv
+   uv sync
    ```
 
-3. Install the package in development mode:
-
-   ```bash
-   pip install -e .
-   ```
-
-4. Create a `.env` file from the example:
+3. Create a `.env` file from the example:
 
    ```bash
    cp example.env .env
    ```
 
-5. Set your Apify API token in the `.env` file:
+4. Set your Apify API token in the `.env` file:
 
    ```
    APIFY_API_TOKEN=your_apify_api_token_here
    ```
 
-## Starting the Server
+5. Run using inspector
 
-### Basic Startup
+   ```zsh
+   npx @modelcontextprotocol/inspector uv run --with fastmcp /Users/user/Desktop/fl100/contract-sourcing/mcp-servers/trends-inspiration/src/product_trends_mcp/server.py
+   ```
 
-The simplest way to start the server:
+## Test using config
 
-```bash
-python -m product_trends_mcp.server
+```json
+{
+  "mcpServers": {
+    "product-trends-mcp": {
+      "command": "/opt/homebrew/bin/uv",
+      "description": "Search for trends on tiktok and instagram (uses apify)",
+      "args": [
+        "--directory",
+        "/ABSOLUTE/PATH/TO/trends-inspiration/src/product_trends_mcp",
+        "run",
+        "--with",
+        "fastmcp",
+        "server.py"
+      ],
+      "env": {
+         "APIFY_API_KEY": "<YOUR_APIFY_KEY>"
+       }
+    }
+  }
+}
 ```
 
-This will start the server on the default port (8000).
-
-### Custom Port
-
-To specify a different port:
-
-```bash
-python -m product_trends_mcp.server --port 8765
-```
 
 ### With Environment Variables
 
@@ -75,21 +81,6 @@ Set additional environment variables when starting the server:
 
 ```bash
 APIFY_API_TOKEN=your_key_here python -m product_trends_mcp.server
-```
-
-### Using Development Mode
-
-For interactive testing with the MCP Inspector, use one of these commands from the `mcp-servers/trends-inspiration` directory:
-
-```zsh
-# Method 1: Use absolute file path (most reliable)
-fastmcp dev src/product_trends_mcp/server.py
-
-# Method 2: Use module syntax with run command
-fastmcp run -m product_trends_mcp.server
-
-# Method 3: Use Python directly
-python -m product_trends_mcp.server
 ```
 
 This starts the server and opens a web interface for testing the tools and endpoints. The first method is preferred for development as it provides the interactive MCP Inspector UI.

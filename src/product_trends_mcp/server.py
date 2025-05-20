@@ -57,10 +57,10 @@ TREND_RESULT_SCHEMA = {
 
 @mcp.tool()
 async def tiktok_hashtag_scraper(
+    ctx: Context,
     hashtags: List[str],
-    results_per_page: int = 100,
-    max_profiles_per_query: int = 10,
-    ctx: Context
+    results_per_page: int = 10,
+    max_profiles_per_query: int = 10
 ) -> Dict[str, Any]:
     """
     Scrape TikTok hashtags to analyze trends related to products.
@@ -137,9 +137,9 @@ async def tiktok_hashtag_scraper(
 
 @mcp.tool()
 async def insta_hashtag_scraper(
+    ctx: Context,
     hashtags: List[str],
-    results_limit: int = 200,
-    ctx: Context
+    results_limit: int = 10
 ) -> Dict[str, Any]:
     """
     Scrape Instagram hashtags to analyze trends related to products.

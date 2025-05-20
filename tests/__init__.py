@@ -1,3 +1,1 @@
-"""
-Tests for the contract-manufacturers-mcp package.
-"""
+"""Tests for the Product Trends MCP server."""
