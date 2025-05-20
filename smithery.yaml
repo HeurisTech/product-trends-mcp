@@ -1,0 +1,17 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - APIFY_API_TOKEN
+    properties:
+      APIFY_API_TOKEN:
+        type: string
+        description: The Apify API key required for scraping social media.
+  commandFunction:
+    # A function that produces the CLI command to start the MCP on stdio.
+    |-
+    (config) => ({command: 'uv', args: ['run', 'src/product_trends_mcp/server.py'], env: {APIFY_API_TOKEN: config.APIFY_API_TOKEN}})

@@ -1,0 +1,19 @@
+[project]
+name = "product-trends-mcp"
+version = "0.1.0"
+description = "MCP server for social media product trends"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.6.0",
+    "python-dotenv>=1.0.0",
+    "uvicorn>=0.25.0",
+    "httpx>=0.24.0",
+]
+
+[project.scripts]
+product-trends-server = "product_trends_mcp.server:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta" 

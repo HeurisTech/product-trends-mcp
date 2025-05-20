@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  contract-manufacturers-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - CONTRACT_MANUFACTURERS_CSV=/app/data/contract_manufacturers.csv
+      - CONTRACT_MANUFACTURERS_DB=/app/data/contract_manufacturers.db
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LOG_LEVEL=INFO
+      - DEBUG=false
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/openapi.json"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
