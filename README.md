@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/heuristech-product-trends-mcp-badge.png)](https://mseep.ai/app/heuristech-product-trends-mcp)
+
 # Product Trends MCP Server
 
 A production-ready MCP server providing tools to analyze product trends on social media platforms like TikTok and Instagram.
